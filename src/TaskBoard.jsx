@@ -1,16 +1,32 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-let nextId = 1
+const STORAGE_KEY = 'task-board.tasks'
+
+function loadTasks() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
 
 function TaskBoard() {
-  const [tasks, setTasks] = useState([])
+  const [tasks, setTasks] = useState(loadTasks)
   const [text, setText] = useState('')
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks))
+  }, [tasks])
 
   function handleSubmit(e) {
     e.preventDefault()
     const trimmed = text.trim()
     if (!trimmed) return
-    setTasks((prev) => [...prev, { id: nextId++, text: trimmed, completed: false }])
+    setTasks((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), text: trimmed, completed: false },
+    ])
     setText('')
   }
 
